@@ -1,0 +1,98 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{ragged2e}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{cancel}
+
+\title{KDAG tasks}
+\author{Anmol Kumar}
+
+\begin{document}
+
+\maketitle
+
+\section{First subtask}
+\textbf{Problem 1:} Find the Hessian matrix H of the empirical loss function with respect to $\theta$, and show that the Hessian H is positive semi-definite in nature.
+
+\begin{flushleft}
+\textbf{Solution:} The empirical loss function is given as,
+\begin{equation}
+J(\theta)=-\frac{1}{m}\sum_{i=1}^{m}y^{(i)} \log(h_\theta(x^{(i)}))+(1-y^{(i)})\log(1-h_\theta(x^{(i)}))
+\end{equation}
+Now defining $J(\theta)\cdot m$ as $L(\theta)$ and writing the loss expression for a single entry $i$, we get,
+\begin{equation}
+    L_{(i)}(\theta)=-[y^{(i)} \log(h_\theta(x^{(i)}))+(1-y^{(i)})\log(1-h_\theta(x^{(i)}))]
+\end{equation}
+The Hessian matrix H is composed of double derivatives of each of the elements, thus we find the double derivatives of the general element $L_{(i)}(\theta)$ we just calculated above. Note that we first differentiate w.r.t $\theta^T$ and then $\theta$ to get our desired value $\nabla_{\theta\theta^T}L_{(i)}(\theta)$\\
+Now before we proceed further, we need to keep in mind an important relation, i.e,
+\begin{equation}
+    \frac{\partial\sigma(z)}{\partial z}=\sigma(z)(1-\sigma(z))
+\end{equation}
+where $\sigma(z)$ is defined as,
+\begin{equation}
+    \sigma(z)=\frac{1}{1+e^{-z}}
+\end{equation}
+In eq(2), our points of interest are $log(h_\theta(x^{(i)}))$ and $log(1-h_\theta(x^{(i)}))$, because the rest of eq(2) are constants. Labeling them as $L$ and $M$ respectively, we first find the gradient of these two functions.
+\begin{equation}
+\begin{aligned}
+\frac{\partial L}{\partial \theta^T}
+    &=\frac{\partial \log h_\theta(x^{(i)})}{\partial \theta^T}\\
+    &=\frac{\partial \log \sigma(\theta^T x^{(i)})}{\partial \theta^T}\\
+    &=\frac{\partial \log \sigma(\theta^T x^{(i)})}{\partial \sigma(\theta^T x^{(i)})}\cdot\frac{\partial \sigma(\theta^T x^{(i)})}{\partial \theta^T x^{(i)})}\cdot\frac{\partial \theta^T x^{(i)})}{\partial \theta^T}\\
+    &=\frac{1}{\cancel{\sigma(\theta^T x^{(i)})}}\cdot\cancel{\sigma(\theta^T x^{(i)})}(1-\sigma(\theta^T x^{(i)})x^{(i)}\\
+    &=(1-\sigma(\theta^T x^{(i)})x^{(i)}
+\end{aligned}
+\end{equation}
+Similarly for M, we get,
+\begin{equation}
+\begin{aligned}
+\frac{\partial M}{\partial \theta^T}
+    &=\frac{\partial \log(1- h_\theta(x^{(i)}))}{\partial \theta^T}\\
+    &=\frac{\partial \log(1- \sigma(\theta^T x^{(i)}))}{\partial \theta^T}\\
+    &=\frac{\partial \log (1-\sigma(\theta^T x^{(i)}))}{\partial \sigma(\theta^T x^{(i)})}\cdot\frac{\partial \sigma(\theta^T x^{(i)})}{\partial \theta^T x^{(i)})}\cdot\frac{\partial \theta^T x^{(i)})}{\partial \theta^T}\\
+    &=\frac{-1}{\cancel{1-\sigma(\theta^T x^{(i)})}}\sigma(\theta^T x^{(i)})\cdot(\cancel{1-\sigma(\theta^T x^{(i)})})x^{(i)}\\
+    &=-\sigma(\theta^T x^{(i)})x^{(i)}
+\end{aligned}
+\end{equation}
+Putting all the values obtained, we get
+\begin{equation}
+    \nabla_{\theta^T} L_{(i)}(\theta)=x^{(i)}(\sigma(\theta^T x^{(i)})-y^{(i)})
+\end{equation}
+Evaluating further, 
+\begin{equation}
+\begin{aligned}
+\nabla_{\theta\theta^T}L_{(i)}(\theta)&=\frac{{\partial^2} L_{(i)}(\theta)}{\partial \theta \partial \theta^T}\\
+    &=\frac{\partial \nabla_{\theta^T} L_{(i)}(\theta)}{\partial \theta}\\
+    &=\frac{\partial x^{(i)}(\sigma(\theta^T x^{(i)})-y^{(i)})}{\partial \theta}\\
+    &=x^{(i)}[x^{(i)}]^T\sigma(\theta^T x^{(i)})(1-\sigma(\theta^T x^{(i)}))
+\end{aligned}
+\end{equation}
+Thus, the Hessian matrix for $L_{(i)}(\theta)$ is given by the above expression. We can now find the Hessian matrix for our original empirical loss function $J_{(i)}(\theta)$
+\begin{equation}
+\begin{aligned}
+L_{(i)}(\theta)&=m\cdot J_{(i)}(\theta)\\
+\Rightarrow {\nabla}^2L_{(i)}(\theta)&=m\cdot{\nabla}^2 J_{(i)}(\theta)\\
+\Rightarrow {\nabla}^2J_{(i)}(\theta)&=
+\frac{1}{m}\cdot x^{(i)}[x^{(i)}]^T\sigma(\theta^T x^{(i)})(1-\sigma(\theta^T x^{(i)}))
+\end{aligned}
+\end{equation}
+Note that the quantity $\sigma(\theta^T x^{(i)})(1-\sigma(\theta^T x^{(i)}))$ is $always >0$ as $\sigma(z)\in(0,1)$.\\
+\vspace{6mm}
+Considering each entry to be composed of $n$ features, we take $X$ as a matrix of dimensions $n\times m$, where every column represents $x^{(i)}$, which is the vector corresponding to a given entry, and every row represents a feature of that entry. Formally, $\sum_{i=1}^{m}x^{(i)}[x^{(i)}]^T=XX^T$ The number of columns is $m$, as its the number of entries for the particular data-set. For the factor of probability, we define a diagonal matrix $D$ of size $m\times m$, with $D_{ii}$ as $\frac{1}{m}\sigma(\theta^T x^{(i)})(1-\sigma(\theta^T x^{(i)}))$ for each set of inputs.\\
+\vspace{6mm}
+Therefore, using $X$ and $D$, we finally define our Hessian  $H$ as,
+\begin{equation}
+    H(\theta)=XDX^T
+\end{equation}
+To prove that $H$ is a positive semi-definite matrix, we need to show that the quantity $z^THz$, a scalar, is positive, where $z$ is any arbitrary matrix of dimensions $1\times n$, where $n$ is the number of features.
+\begin{equation}
+\begin{aligned}
+z^THz&=z^TXDX^Tx&=(z^TX)D(z^TX)^T
+\end{aligned}
+\end{equation}
+Since D is a positive contributing entity and $z^TX$ is being multiplied with itself, the whole scalar turns out to be positive.\\
+\vspace{10mm}
+Hence, the Hessian matrix $H$ has been proved to be positive semi-definite in nature.
+\end{flushleft}
+\end{document}
